@@ -2,6 +2,7 @@ package org.example;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class App {
@@ -44,14 +45,16 @@ public class App {
 
     // Skriv ut menyn
     private static void printMenu() {
-        System.out.print("Elpriser\n");
-        System.out.print("========\n");
-        System.out.print("1. Inmatning\n");
-        System.out.print("2. Min, Max och Medel\n");
-        System.out.print("3. Sortera\n");
-        System.out.print("4. Bästa Laddningstid (4h)\n");
-        System.out.print("e. Avsluta\n");
-        System.out.print("Välj ett alternativ: \n");
+        System.out.println("""
+                Elpriser
+                ========
+                1. Inmatning
+                2. Min, Max och Medel
+                3. Sortera
+                4. Bästa Laddningstid (4h)
+                5. Visualisering
+                e. Avsluta
+                """);
     }
 
     // Metod för inmatning av elpriser
@@ -72,6 +75,7 @@ public class App {
 
     // Metod för att beräkna min, max och medelvärde
     private static void calculateMinMaxAvg() {
+        Locale.setDefault(new Locale("sv", "SE"));
         if (elpriser.length == 0) {
             System.out.print("Inga elpriser inmatade.\n");
             return;
@@ -81,22 +85,26 @@ public class App {
         int max = Arrays.stream(elpriser).max().orElse(Integer.MIN_VALUE);
         double avg = Arrays.stream(elpriser).average().orElse(Double.NaN);
 
-        // Hitta timmarna för min och max priser
+        // Hitta första förekomsten av timme för min och max priser
         String minHour = "";
         String maxHour = "";
         for (int i = 0; i < elpriser.length; i++) {
-            if (elpriser[i] == min) {
-                minHour += (i + "-" + (i + 1) + " ");
+            if (elpriser[i] == min && minHour.isEmpty()) {
+                minHour = formatTime(i);
             }
-            if (elpriser[i] == max) {
-                maxHour += (i + "-" + (i + 1) + " ");
+            if (elpriser[i] == max && maxHour.isEmpty()) {
+                maxHour = formatTime(i);
+            }
+            // Bryt loopen om båda min och max timmar har hittats
+            if (!minHour.isEmpty() && !maxHour.isEmpty()) {
+                break;
             }
         }
 
         // Uppdaterad utskrift
-        System.out.printf("Lägsta pris: %s, %d öre/kWh%n", minHour.trim(), min);
-        System.out.printf("Högsta pris: %s, %d öre/kWh%n", maxHour.trim(), max);
-        System.out.printf("Medelpris: %.2f öre/kWh%n", avg);
+        System.out.printf("Lägsta pris: %s, %d öre/kWh\n", minHour, min);
+        System.out.printf("Högsta pris: %s, %d öre/kWh\n", maxHour, max);
+        System.out.printf("Medelpris: %.2f öre/kWh\n", avg);
     }
 
     // Metod för att sortera elpriser
@@ -118,12 +126,13 @@ public class App {
 
         System.out.print("Elpriser sorterade från dyrast till billigast:\n");
         for (Integer[] timePrice : timeAndPrices) {
-            System.out.printf("%02d-%02d %d öre%n", timePrice[0], timePrice[0] + 1, timePrice[1]);
+            System.out.printf("%02d-%02d %d öre\n", timePrice[0], timePrice[0] + 1, timePrice[1]);
         }
     }
 
     // Metod för att hitta bästa laddningstid (4 timmar)
     private static void bestChargingTime() {
+        Locale.setDefault(new Locale("sv", "SE"));
         if (elpriser.length < 4) {
             System.out.print("Inte tillräckligt med data för att hitta bästa laddningstid.\n");
             return;
@@ -142,7 +151,12 @@ public class App {
         }
 
         double avg = minSum / 4.0;
-        System.out.printf("Påbörja laddning klockan %02d%n", bestStartIndex);
-        System.out.printf("Medelpris 4h: %.1f öre/kWh%n", avg);
+        System.out.printf("Påbörja laddning klockan %02d\n", bestStartIndex);
+        System.out.printf("Medelpris 4h: %.1f öre/kWh\n", avg);
+    }
+
+    // Metod för att formatera tiden
+    private static String formatTime(int hour) {
+        return String.format("%02d-%02d", hour, hour + 1);
     }
 }
