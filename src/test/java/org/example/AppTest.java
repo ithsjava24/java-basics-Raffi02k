@@ -15,7 +15,7 @@ class AppTest {
     ByteArrayOutputStream bos;
 
     @BeforeEach
-    void setup(){
+    void setup() {
         originalOut = System.out;
         bos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(bos));
@@ -54,8 +54,9 @@ class AppTest {
                 """;
         provideInput("e\n");
         App.main(null);
-        assertThat(bos.toString()).containsAnyOf(menu,menuvg);
+        assertThat(bos.toString()).containsAnyOf(menu, menuvg);
     }
+
     @Test
     void exitWithUpperCaseE() {
         String menu = """
@@ -79,7 +80,7 @@ class AppTest {
                 """;
         provideInput("E\n");
         App.main(null);
-        assertThat(bos.toString()).containsAnyOf(menu,menuvg);
+        assertThat(bos.toString()).containsAnyOf(menu, menuvg);
     }
 
     @Test
@@ -112,7 +113,6 @@ class AppTest {
                 """;
         assertThat(bos.toString()).contains(response, response2);
     }
-
 
 
     @Test
