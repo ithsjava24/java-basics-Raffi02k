@@ -220,6 +220,7 @@ public class App {
             }
 
 
+
             // Rita "x" fram till den specifika timmen för den aktuella raden
             for (int j = 0; j < elpriser.length; j++) {
                 if (j < hourLimits[i] && (level == maxPris || elpriser[j] >= level)) {
