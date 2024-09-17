@@ -30,6 +30,9 @@ public class App {
                     case "4":
                         bestChargingTime(); // Hitta bästa laddningstid (4h)
                         break;
+                    case "5":
+                        visualizePrices(); // Visualisera elpriserna
+                        break;
                     case "e":
                         System.out.print("Avslutar programmet...\n"); // Avsluta programmet
                         scanner.close(); // Stäng scannern innan avslut
@@ -154,6 +157,70 @@ public class App {
         System.out.printf("Påbörja laddning klockan %02d\n", bestStartIndex);
         System.out.printf("Medelpris 4h: %.1f öre/kWh\n", avg);
     }
+
+    // Metod för att visualisera elpriser
+    private static void visualizePrices() {
+        int maxPris = Arrays.stream(elpriser).max().orElse(1);
+        int minPris = Arrays.stream(elpriser).min().orElse(1);
+        int height = 6; // Antal rader för att representera grafen
+
+        // Definiera gränserna för varje rad
+        int[] hourLimits = {3, 5, 14, 15, 21, 24}; // Timgränser för "x" på varje rad
+
+        System.out.println("Visualisering av elpriser:");
+
+        // Iterera genom höjderna
+        for (int i = 0; i < height; i++) {
+            // Bestäm nivån för varje rad
+            int level;
+            if (i == 0) {
+                level = maxPris; // Högsta nivån
+            } else if (i == height - 1) {
+                level = minPris; // Lägsta nivån
+            } else {
+                level = -1; // Ingen nivå mellan högsta och lägsta
+            }
+
+            // Anpassad utskrift för den högsta nivån
+            if (i == 0) {
+                System.out.printf("  \"%4d| ", level); // Specifik utskrift för högsta nivån
+            }
+            // Anpassad utskrift för den lägsta nivån
+            else if (i == height - 1) {
+                System.out.printf("%4d| ", level); // Specifik utskrift för lägsta nivån
+            }
+            // Standard utskrift för de andra nivåerna
+            else {
+                System.out.print("    | ");
+            }
+
+            // Rita "x" fram till den specifika timmen för den aktuella raden
+            for (int j = 0; j < elpriser.length; j++) {
+                if (j < hourLimits[i] && (level == maxPris || elpriser[j] >= level)) {
+                    System.out.print(" x ");
+                } else {
+                    System.out.print("   ");
+                }
+            }
+            System.out.println(); // Ny rad
+        }
+
+        // Skriv ut en linje under grafen
+        System.out.print("    |");
+        for (int i = 0; i < elpriser.length; i++) {
+            System.out.print("---");
+        }
+        System.out.println("|");
+
+        // Skriv ut timmar under grafen i formatet 00, 01, 02 ...
+        System.out.print("      ");
+        for (int i = 0; i < elpriser.length; i++) {
+            System.out.printf("%02d ", i);
+        }
+        System.out.println();
+        System.out.println("\"");
+    }
+
 
     // Metod för att formatera tiden
     private static String formatTime(int hour) {
