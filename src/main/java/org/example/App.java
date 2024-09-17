@@ -56,15 +56,15 @@ public class App {
     // Skriv ut menyn
     private static void printMenu() {
         System.out.println("""
-               Elpriser
-               ========
-               1. Inmatning
-               2. Min, Max och Medel
-               3. Sortera
-               4. Bästa Laddningstid (4h)
-               5. Visualisering
-               e. Avsluta
-               """);
+                Elpriser
+                ========
+                1. Inmatning
+                2. Min, Max och Medel
+                3. Sortera
+                4. Bästa Laddningstid (4h)
+                5. Visualisering
+                e. Avsluta
+                """);
     }
 
 
@@ -183,75 +183,53 @@ public class App {
     private static void visualizePrices() {
         int maxPris = Arrays.stream(elpriser).max().orElse(1);
         int minPris = Arrays.stream(elpriser).min().orElse(1);
-        int height = 6; // Antal rader för att representera grafen
-
-
-        // Definiera gränserna för varje rad
-        int[] hourLimits = {3, 6, 15, 16, 22, 24}; // Timgränser för "x" på varje rad
-
+        final int HEIGHT = 6; // Antal rader för att representera grafen
+        final int COLUMN_COUNT = elpriser.length;
+        final float DIFFERENCE = (maxPris - minPris) / (HEIGHT - 1f);
 
         System.out.println("Visualisering av elpriser:");
 
+        // Loopa genom raderna, från den högsta till den lägsta
+        for (int i = HEIGHT; i > 0; i--) {
+            StringBuilder output = new StringBuilder();
+            int lowerBound = (i == 1) ? minPris : (int) (maxPris - (HEIGHT - i) * DIFFERENCE);
 
-        // Iterera genom höjderna
-        for (int i = 0; i < height; i++) {
-            // Bestäm nivån för varje rad
-            int level;
-            if (i == 0) {
-                level = maxPris; // Högsta nivån
-            } else if (i == height - 1) {
-                level = minPris; // Lägsta nivån
+            int maxLength = Integer.toString(maxPris).length();
+            int minLength = Integer.toString(minPris).length();
+            int longest = Math.max(maxLength, minLength);
+
+            // Skriv ut maxvärde för den översta raden och minvärde för den nedersta
+            if (i == HEIGHT) {
+                String spaces = maxLength < longest ? addSpaces(longest - maxLength) : "";
+                output.append(spaces).append(maxPris).append("|");
+            } else if (i == 1) {
+                String spaces = minLength < longest ? addSpaces(longest - minLength) : "";
+                output.append(spaces).append(minPris).append("|");
             } else {
-                level = -1; // Ingen nivå mellan högsta och lägsta
+                output.append(addSpaces(longest)).append("|");
             }
 
-
-            // Anpassad utskrift för den högsta nivån
-            if (i == 0) {
-                System.out.printf("  \"%4d| ", level); // Specifik utskrift för högsta nivån
-            }
-            // Anpassad utskrift för den lägsta nivån
-            else if (i == height - 1) {
-                System.out.printf("%4d| ", level); // Specifik utskrift för lägsta nivån
-            }
-            // Standard utskrift för de andra nivåerna
-            else {
-                System.out.print("    | ");
-            }
-
-
-
-            // Rita "x" fram till den specifika timmen för den aktuella raden
-            for (int j = 0; j < elpriser.length; j++) {
-                if (j < hourLimits[i] && (level == maxPris || elpriser[j] >= level)) {
-                    System.out.print(" x ");
+            // Rita "x" om priset för varje kolumn är högre eller lika med den aktuella nivån
+            for (int j = 0; j < COLUMN_COUNT; j++) {
+                int currentPrice = elpriser[j];
+                if (currentPrice >= lowerBound) {
+                    output.append("  x");
                 } else {
-                    System.out.print("   ");
+                    output.append("   ");
                 }
             }
-            System.out.println(); // Ny rad
+            System.out.println(output);
         }
-
 
         // Skriv ut en linje under grafen
-        System.out.print("    |");
-        for (int i = 0; i < elpriser.length; i++) {
-            System.out.print("---");
-        }
-        System.out.println();
-
-
-
-        // Skriv ut timmar under grafen i formatet 00, 01, 02 ...
-        System.out.print("    | ");
-        for (int i = 0; i < elpriser.length; i++) {
-            System.out.printf("%02d ", i);
-        }
-        System.out.println();
-        System.out.println("\"");
+        System.out.print("   |------------------------------------------------------------------------\n");
+        System.out.print("   | 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23\n");
     }
 
-
+    // Hjälpmetod för att lägga till mellanslag
+    private static String addSpaces(int count) {
+        return " ".repeat(count);
+    }
 
 
     // Metod för att formatera tiden
